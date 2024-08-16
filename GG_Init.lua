@@ -3,7 +3,7 @@ ns = {}
 
 ICON_PATH = 'Interface\\AddOns\\GroupGames\\Images\\'
 
-GG = LibStub('AceAddon-3.0'):NewAddon('GroupGames', 'AceConsole-3.0', 'AceEvent-3.0', 'AceHook-3.0', 'AceComm-3.0')
+GG = LibStub('AceAddon-3.0'):NewAddon('GroupGames', 'AceConsole-3.0', 'AceHook-3.0', 'AceComm-3.0')
 GG.author  = C_AddOns.GetAddOnMetadata('GroupGames', 'Author')
 GG.version = C_AddOns.GetAddOnMetadata('GroupGames', 'Version')
 -- Icons

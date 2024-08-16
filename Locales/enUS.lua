@@ -7,6 +7,9 @@ LEFT CLICK - Open Group Games
 RIGHT CLICK - Open Settings
 ]]
 
+--* General Localization
+L['POT_AMOUNT'] = 'Pot Amount'
+
 --* Dice Games
 L['SURVIVOR'] = 'Survivor'
 L['SURVIVOR_DESC'] = [[
