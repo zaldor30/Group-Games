@@ -3,7 +3,7 @@ ns = {}
 
 ICON_PATH = 'Interface\\AddOns\\GroupGames\\Images\\'
 
-GG = LibStub('AceAddon-3.0'):NewAddon('GroupGames', 'AceConsole-3.0', 'AceHook-3.0', 'AceComm-3.0')
+GG = LibStub('AceAddon-3.0'):NewAddon('GroupGames', 'AceEvent-3.0','AceConsole-3.0', 'AceHook-3.0', 'AceComm-3.0')
 GG.author  = C_AddOns.GetAddOnMetadata('GroupGames', 'Author')
 GG.version = C_AddOns.GetAddOnMetadata('GroupGames', 'Version')
 -- Icons
@@ -45,5 +45,8 @@ function BackdropTemplate(bgImage, edgeImage, tile, tileSize, edgeSize, insets)
 end
 
 -- Highlgiht Images
+BLUE_OUTLINE_HIGHLIGHT = 'UI-CharacterCreate-LargeButton-Blue-Highlight'
+AH_BLUE_HIGHLIGHT = 'auctionhouse-nav-button-highlight'
+RED_HIGHLIGHT = '128-GoldRedButton-Highlight'
 BLUE_HIGHLIGHT = 'bags-glow-heirloom'
 BLUE_LONG_HIGHLIGHT = 'communitiesfinder_card_highlight'

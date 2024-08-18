@@ -30,11 +30,11 @@ Libs\LibDeflate\LibDeflate.lua
 
 Locales\Locales.xml
 
+GG_Init.lua
+
 Screens\GG_Base.lua
-Screens\GG_Dice_Survivor.lua
+Screens\Dice_Games\GG_HighRoller.lua
 
 Shared\GG_Code.lua
-Shared\GG_Events.lua
 
-GG_Init.lua
 GG_Core.lua
