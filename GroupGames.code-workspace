@@ -2,9 +2,6 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../../../../../../Users/zalro/Documents/GitHub/GroupGames-Old"
 		}
 	],
 	"settings": {
@@ -39,7 +36,19 @@
 			"PARTY",
 			"class",
 			"CHAT_MSG_SYSTEM",
-			"WHISPER"
+			"WHISPER",
+			"GameTooltip",
+			"UIParent",
+			"GetClassColor",
+			"NORMAL_FONT_COLOR",
+			"GameFontNormal",
+			"GameFontHighlight",
+			"GameFontHighlightLarge",
+			"GameFontHighlightSmall",
+			"GameFontDisableSmall",
+			"GameFontNormalSmall",
+			"ChatFontNormal",
+			"Minimap"
 		]
 	}
 }
