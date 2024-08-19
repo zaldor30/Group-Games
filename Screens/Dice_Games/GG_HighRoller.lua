@@ -21,6 +21,9 @@ function highLow:Init()
         bet = 0,
         players = {},
         playerCount = 0,
+        tieHighCount = 0,
+        tieLowCount = 0,
+        rowsRoll = {},
     }
 end
 function highLow:SetShown(val)
@@ -49,6 +52,7 @@ function highLow:SetShown(val)
 
     self:CreateBaseFrame()
     self:CreateLeftPane()
+    self:LoadPlayerRolls()
     self:CreateRightPane()
     self:SetButtons()
 
@@ -80,6 +84,20 @@ function highLow:CreateLeftPane()
     playerRolls:SetFrameStrata('DIALOG')
     playerRolls:SetShown(true)
     self.tblFrame.playerRolls = playerRolls
+
+    --* Player Rolls ScrollFrame
+    local scrollFrame = CreateFrame("ScrollFrame", "GG_Dice_HighRoller_PlayerRolls_ScrollFrame", playerRolls, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetSize(playerRolls:GetWidth()-40, playerRolls:GetHeight()-20)  -- Set the size of the scroll frame
+    scrollFrame:SetPoint("CENTER", playerRolls, "CENTER", -10, 0)  -- Position it in the center of the screen
+
+    local scrollBar = _G[scrollFrame:GetName().."ScrollBar"]
+    scrollBar:Hide()
+
+    local contentFrame = CreateFrame("Frame", "GG_Dice_HighRoller_PlayerRolls_ContentFrame", scrollFrame)
+    contentFrame:SetSize(scrollFrame:GetWidth(), 400)
+    scrollFrame:SetScrollChild(contentFrame)
+
+    self.tblFrame.playerRolls.contentFrame = contentFrame
 end
 function highLow:CreateRightPane()
     local frame = self.tblFrame.frame
@@ -230,25 +248,96 @@ function highLow:SetButtons()
 end
 
 --* Game Controls
+function highLow:clearAllRows()
+    self.tblRound.rowsRoll = self.tblRound.rowsRoll or {}
+    for _, row in ipairs(self.tblRound.rowsRoll) do
+        row:Hide()
+        row:SetParent(nil)
+    end
+    self.tblRound.rowsRoll = table.wipe(self.tblRound.rowsRoll)
+    self.tblFrame.playerRolls.contentFrame:SetHeight(0)
+end
+function highLow:LoadPlayerRolls()
+    local contentFrame = self.tblFrame.playerRolls.contentFrame
+
+    local function createContentRow(parent, name, rec, yOffset, isTitle)
+        rec = type(rec) == 'table' and rec or {
+            roll = rec,
+            class = nil,
+            isHighest = false,
+        }
+        local lineSpacing = 20
+        local row = CreateFrame("Frame", nil, parent)
+
+        row:SetSize(parent:GetWidth(), lineSpacing)
+        row:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, yOffset)
+
+        local highLight = row:CreateTexture(nil, 'OVERLAY')
+        highLight:SetAllPoints(row)
+        highLight:SetAtlas('bonusobjectives-bar-bg')
+        highLight:SetShown(isTitle or false)
+
+        -- First Column - Player Name
+        local nameOut = name:gsub('%-.*', '')
+        local nameText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        nameText:SetPoint("LEFT", row, "LEFT", 0, 1)
+        nameText:SetWidth(parent:GetWidth() * 0.5)  -- Set width for the first column
+        nameText:SetJustifyH("LEFT")
+        nameText:SetText(rec.class and ns.code:cPlayer(nameOut, rec.class) or nameOut)
+        nameText:SetWordWrap(false)
+
+        -- Second column (Value or Roll Result)
+        local rollOut = (rec.roll ~= '0' and type(rec.roll) == 'number') and ns.code:FormatNumberWithCommas(rec.roll) or rec.roll
+        if rec.roll == '0' then rollOut = ''
+        elseif type(rec.roll) == 'number' and rec.isHighest then
+            rollOut = ns.code:cText('FF00FF00', rollOut)
+        elseif type(rec.roll) == 'number' and rec.isLowest then
+            rollOut = ns.code:cText('FFFF0000', rollOut)
+        end
+
+        local valueText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        valueText:SetPoint("LEFT", nameText, "RIGHT", 10, 0)
+        valueText:SetWidth(parent:GetWidth() * 0.4)  -- Set width for the second column
+        valueText:SetJustifyH('CENTER')
+        valueText:SetTextColor(1, 1, 1, 1)
+        valueText:SetText(rollOut)
+
+        tinsert(self.tblRound.rowsRoll, row)
+        parent:SetHeight(lineSpacing * #self.tblRound.rowsRoll)
+    end
+
+    local yOffset = -20
+
+    self:clearAllRows()
+    self.tblRound.rowsRoll = self.tblRound.rowsRoll or {}
+    createContentRow(contentFrame, 'Player Name', 'Roll Result', 0, true)
+    for k, v in pairs(self.tblRound.players or {}) do
+        createContentRow(contentFrame, k, v or false, yOffset)
+        yOffset = yOffset - 20
+    end
+end
 function highLow:StartGame()
     ns.core.isGameRunning = true
+    local waitTime = ns.gameSettings['highRoller'].joinWaitTime or 30
 
     self.tblRound.round = self.tblRound.round and self.tblRound.round + 1 or 1
-    self.tblRound.players = {}
+    self.tblRound.players = self.tblRound.players and table.wipe(self.tblRound.players) or {}
 
+    self:LoadPlayerRolls()
     ns.logs:AddLogEntry('Round: '..self.tblRound.round..' - Betting: '..ns.code:FormatNumberWithCommas(self.tblRound.bet)..' gold', 'FF00FF00')
 
     self:SetButtons()
 
-    ns.logs:AddLogEntry('Invites started. Game will start in '..(ns.gameSettings['highRoller'].joinWaitTime or 30)..' seconds.')
+    --ns.logs:AddLogEntry('Invites started. Game will start in '..waitTime..' seconds.')
     ns.code:SendChatMessage('Press 1 to join the game. Bet: '..ns.code:FormatNumberWithCommas(self.tblRound.bet)..' gold')
-    ns.code:SendChatMessage('You have '..(ns.gameSettings['highRoller'].joinWaitTime or 30)..' before the game starts.')
+    ns.code:SendChatMessage('You have '..waitTime..' seconds before the game starts.')
 
-    ns.code:GetJoiningPlayers(ns.diceGames.highRoller.tblRound)
-    ns.code:CountDowntimer(30, function()
+    ns.code:GetJoiningPlayers(ns.diceGames.highRoller.tblRound, function()
+         ns.diceGames.highRoller:LoadPlayerRolls() end)
+    ns.code:CountDowntimer(waitTime, function()
         ns.code:StopJoiningPlayers()
         ns.logs:AddLogEntry('Invites complete, found '..self.tblRound.playerCount..' players.')
-        if self.tblRound.playerCount < 2 then
+        if self.tblRound.playerCount < (GG.isPreRelease and 1 or 2) then
             ns.logs:AddLogEntry('Not enough players to start the game. Cancelling...', 'FFFF0000')
             ns.code:SendChatMessage('Not enough players to start the game. Cancelling...')
             self:EndGame()
@@ -259,12 +348,87 @@ function highLow:StartGame()
     end)
 end
 function highLow:StartRolling()
+    local rollTime = ns.gameSettings['highRoller'].rollTime or 15
+
+    ns.logs:AddLogEntry(ns.code:cText('FF00FF00', 'Game has started. Players are rolling...'))
+    ns.code:SendChatMessage('Rolling has started. You have '..(ns.gameSettings['highRoller'].rollTime or 15)..' seconds to roll.')
+    ns.code:SendChatMessage('Type /roll '..self.tblRound.bet..' to roll.')
+
+    ns.code:CapturePlayerRolls(ns.diceGames.highRoller.tblRound, function()
+        ns.diceGames.highRoller:LoadPlayerRolls() end)
+    ns.code:CountDowntimer(rollTime, function()
+        ns.code:StopCapturingPlayerRolls()
+        ns.logs:AddLogEntry('Rolling complete. Calculating results...')
+        ns.code:SendChatMessage('Rolling complete. Calculating results...')
+
+        self:CalculateResults()
+    end)
 end
-function highLow:EndGame()
+function highLow:CalculateResults()
+    local highestRoll, lowestRoll = 0, 0
+    local highestPlayer, lowestPlayer = {}, {}
+    for k, v in pairs(self.tblRound.players) do
+        local fName = v.class and ns.code:cPlayer(k, v.class) or k
+        if v.isHighest then
+            highestRoll = v.roll
+            tinsert(highestPlayer, {name = k, fName = fName, roll = v.roll})
+        end
+        if v.isLowest then
+            lowestRoll = v.roll
+            tinsert(lowestPlayer, {name = k, fName = fName, roll = v.roll})
+        end
+    end
+
+    local tieLow, tieHigh = self.tblRound.tieLowCount, self.tblRound.tieHighCount
+    local owed = highestRoll - lowestRoll
+    local owedEach = owed / tieHigh
+    local payEach = owedEach / tieLow
+
+    if tieHigh == 1 then
+        ns.logs:AddLogEntry('The highest roll was '..highestPlayer[1].roll..' by '..highestPlayer[1].fName)
+        ns.code:SendChatMessage('The highest roll was '..highestPlayer[1].roll..' by '..highestPlayer[1].name)
+    else
+        local msg, msg2 = 'The highest roll was '..highestRoll, 'The highest roll was '..highestRoll
+        for k, v in pairs(highestPlayer) do
+            msg = msg..' by '..v.fName..(k == tieHigh and '.' or ' and ')
+            msg2 = msg2..' by '..v.name..(k == tieHigh and '.' or ' and ')
+        end
+        ns.logs:AddLogEntry(msg)
+        ns.logs:AddLogEntry('Each player will receive '..ns.code:cText('FF00FF00', ns.code:FormatNumberWithCommas(owedEach))..' gold.')
+
+        ns.code:SendChatMessage(msg2)
+        ns.code:SendChatMessage('Each player will receive '..ns.code:FormatNumberWithCommas(owedEach)..' gold.')
+    end
+
+    if tieLow == 1 then
+        ns.logs:AddLogEntry('The lowest roll was '..lowestPlayer[1].roll..' by '..lowestPlayer[1].fName)
+        ns.logs:AddLogEntry(lowestPlayer[1].fName..' will pay '..ns.code:cText('FF00FF00', ns.code:FormatNumberWithCommas(owed))..' gold.')
+
+        ns.code:SendChatMessage('The lowest roll was '..lowestPlayer[1].roll..' by '..lowestPlayer[1].name)
+        ns.code:SendChatMessage(lowestPlayer[1].name..' will pay '..ns.code:FormatNumberWithCommas(owed)..' gold.')
+    else
+        local msg, msg2 = 'The lowest roll was '..lowestRoll, 'The lowest roll was '..lowestRoll
+        for k, v in pairs(lowestPlayer) do
+            msg = msg..' by '..v.fName..(k == #lowestPlayer and '.' or ' and ')
+            msg2 = msg2..' by '..v.name..(k == #lowestPlayer and '.' or ' and ')
+        end
+        ns.logs:AddLogEntry(msg)
+        ns.logs:AddLogEntry('Each player will pay '..ns.code:cText('FF00FF00', ns.code:FormatNumberWithCommas(payEach))..' gold.')
+
+        ns.code:SendChatMessage(msg2)
+        ns.code:SendChatMessage('Each player will pay '..ns.code:FormatNumberWithCommas(payEach)..' gold.')
+    end
+
+    self:EndGame(true)
+end
+function highLow:EndGame(normalEnd)
     ns.core.isGameRunning = false
 
     self:SetButtons()
 
     self.tblRound.players = {}
+    if normalEnd then
+        ns.logs:AddLogEntry(ns.code:cText('FFFF0000', 'Round '..self.tblRound.round..' has ended.'))
+    end
 end
 highLow:Init()

@@ -117,9 +117,37 @@ function code:CountDowntimer(seconds, callback)
     end
     C_Timer.After(1, function() self:CountDowntimer(seconds - 1, callback) end)
 end
+function code:FindHighestRoll(tbl)
+    local highestRoll, lowestRoll, tieHighCount, tieLowCount = 0, tonumber(tbl.bet), 1, 1
 
-function code:StopJoiningPlayers() self:GetJoiningPlayers(nil, true) end
-function code:GetJoiningPlayers(tbl, stopListening)
+    for k, v in pairs(tbl.players) do
+        local roll = type(v.roll) == 'number' and v.roll or tonumber(v.roll)
+        if v.roll and roll then
+            if roll > highestRoll then
+                highestRoll = roll
+                tieHighCount = 1
+            elseif roll == highestRoll then tieHighCount = tieHighCount + 1 end
+
+            if roll ~= 0 and roll < lowestRoll then
+                lowestRoll = roll
+                tieLowCount = 1
+            elseif roll == lowestRoll then tieLowCount = tieLowCount + 1 end
+        end
+    end
+    for _, v in pairs(tbl.players) do
+        v.isHighest, v.isLowest = false, false
+        local roll = type(v.roll) == 'number' and v.roll or tonumber(v.roll or '0')
+        if roll == highestRoll then v.isHighest = true
+        elseif roll == lowestRoll then v.isLowest = true end
+    end
+
+    --* Check for ties
+    tbl.tieHighCount = tieHighCount
+    tbl.tieLowCount = tieLowCount
+end
+
+function code:StopJoiningPlayers() self:GetJoiningPlayers(nil, nil, true) end
+function code:GetJoiningPlayers(tbl, refreshFunc, stopListening)
     local tblGuildPlayers = not stopListening and ns.code:GetGuildPlayers() or {}
     local function ChatListener(event, message, sender, ...)
         if message:trim() ~= '1' and message:trim() ~= '0' then return
@@ -127,18 +155,25 @@ function code:GetJoiningPlayers(tbl, stopListening)
             event ~= 'CHAT_MSG_RAID_LEADER' and event ~= 'CHAT_MSG_PARTY_LEADER' then return end
 
         local name = sender:find(UnitName('player')) and 'player' or sender
-        local class = UnitClassBase(name)
-        name = class and ns.code:cPlayer(sender, class) or sender
+        local noRealmName = sender:find(GetRealmName()) and sender:gsub('%-.*', '') or sender
+        local class = sender:find(UnitName('player')) and UnitClassBase('player') or UnitClassBase(noRealmName) or nil
 
+        name = class and ns.code:cPlayer(sender, class) or sender
         if message:trim() == '1' and not tbl.players[sender] then
             tbl.playerCount = tbl.playerCount + 1
-            tbl.players[sender] = tblGuildPlayers[sender] and true or false
+            tbl.players[sender] = {
+                isInGuild = tblGuildPlayers[sender] and true or false,
+                roll = '0',
+            }
             ns.logs:AddLogEntry(name..' has joined the game.')
         elseif message:trim() == '0' and tbl.players[sender] then
             tbl.playerCount = tbl.playerCount - 1
             tbl.players[sender] = nil
             ns.logs:AddLogEntry(name..' has left the game.')
         end
+        tbl.players[sender].class = class
+
+        refreshFunc()
     end
 
     if stopListening then
@@ -151,6 +186,46 @@ function code:GetJoiningPlayers(tbl, stopListening)
     tbl.playerCount = 0
     GG:RegisterEvent(ns.core.groupType == 'raid' and 'CHAT_MSG_RAID' or 'CHAT_MSG_PARTY', ChatListener)
     GG:RegisterEvent(ns.core.groupType == 'raid' and 'CHAT_MSG_RAID_LEADER' or 'CHAT_MSG_PARTY_LEADER', ChatListener)
+end
+function code:StopCapturingPlayerRolls() self:CapturePlayerRolls(nil, nil, true) end
+function code:CapturePlayerRolls(tbl, refreshFunc, stopListening)
+    if stopListening then
+        GG:UnregisterEvent('CHAT_MSG_SYSTEM')
+        return
+    end
+
+    local function ChatListener(event, message, _, ...)
+        local playerName, roll, minRoll, maxRoll = message:match("^(%S+) rolls (%d+) %((%d+)-(%d+)%)$")
+        local tblName = playerName:find('-') and playerName or playerName..'-'..GetRealmName()
+        local fName = tbl.players[tblName].class and code:cPlayer(tblName, tbl.players[tblName].class) or tblName
+
+        if not playerName or not roll or not minRoll or not maxRoll then return
+        elseif event ~= 'CHAT_MSG_SYSTEM' then return
+        elseif not tbl.players[tblName] then return end
+
+        local invalid = false
+        if minRoll ~= '1' then invalid = true
+        elseif tonumber(maxRoll) ~= tbl.bet then invalid = true
+        elseif tbl.players[tblName].roll ~= '0' then
+            code:SendChatMessage(playerName..' nice try, but you already rolled.')
+            return
+        end
+
+        if invalid and UnitName('player') == playerName then
+            ns.code:fOut('Your roll must be between 1 and '..tbl.bet..'.')
+        elseif invalid then
+            code:SendChatMessage('Your roll must be between 1 and '..tbl.bet..'.', 'WHISPER', playerName)
+            return
+        end
+
+        tbl.players[tblName].roll = tonumber(roll)
+        code:FindHighestRoll(tbl)
+
+        refreshFunc()
+        ns.logs:AddLogEntry(fName..' rolled a '..roll..'.')
+    end
+
+    GG:RegisterEvent('CHAT_MSG_SYSTEM', ChatListener)
 end
 
 --* General Routines

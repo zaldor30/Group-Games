@@ -114,7 +114,7 @@ function core:StartDatabase()
     self.db.global = self.db.global or {}
     self.db.profile = self.db.profile or {}
 
-    ns.global = self.db.global
+    ns.global = self.db.global or {}
     ns.profile = self.db.profile or self.addonSettings.profile
 
     ns.pSettings, ns.gSettings = ns.profile.settings, ns.global.settings
@@ -127,12 +127,13 @@ function core:StartGuildSave()
     local clubID = C_Club.GetGuildClubId()
     if not clubID then return end
 
-    ns.global[clubID] = ns.global[clubID] or self.addonSettings.global
 
     ns.global[clubID] = ns.global[clubID] or self.addonSettings.global
-    ns.gStats = ns.global[clubID].stats
-    ns.gGames = ns.global[clubID].games
-    ns.gameSettings = ns.global[clubID].gameSettings
+    ns.guild = ns.global[clubID]
+
+    ns.gStats = ns.guild.stats
+    ns.gGames = ns.guild.games
+    ns.gameSettings = ns.guild.gameSettings
 end
 function core:CreateMiniMapIcon()
     local iconData = LibStub("LibDataBroker-1.1"):NewDataObject("GG_Icon", {

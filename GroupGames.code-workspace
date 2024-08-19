@@ -37,7 +37,9 @@
 			"StaticPopup_Show",
 			"RAID",
 			"PARTY",
-			"class"
+			"class",
+			"CHAT_MSG_SYSTEM",
+			"WHISPER"
 		]
 	}
 }

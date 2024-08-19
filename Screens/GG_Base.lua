@@ -293,7 +293,6 @@ function logs:CreateLogsFrame()
     f:SetClampedToScreen(true)
     f:SetPoint(base.screenPos.point, base.screenPos.x, base.screenPos.y)
     f:EnableMouse(false)
-    f:RegisterForDrag('LeftButton')
     f:SetShown(true)
     self.tblLogs.frame = f
 
@@ -361,6 +360,7 @@ function logs:AddLogEntry(entry, color)
     logEntry:SetPoint("TOPLEFT", logsFrame, "TOPLEFT", 10, -lineSpacing * (#self.logEntries - 1))
     logEntry:SetWidth(logsFrame:GetWidth() - 20)
     logEntry:SetJustifyH("LEFT")
+    logEntry:SetWordWrap(false)
 
     -- Adjust the content frame height to accommodate the new entry
     logsFrame:SetHeight(lineSpacing * #self.logEntries)
