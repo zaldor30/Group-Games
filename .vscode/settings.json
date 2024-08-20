@@ -42,6 +42,11 @@
         "UIDropDownMenu_SetWidth",
         "CloseDropDownMenus",
         "StaticPopup_Show",
-        "StaticPopupDialogs"
+        "StaticPopupDialogs",
+        "UISpecialFrames",
+        "UpdateSecondFrameDuringDrag"
+    ],
+    "Lua.diagnostics.disable": [
+        "undefined-field"
     ]
 }

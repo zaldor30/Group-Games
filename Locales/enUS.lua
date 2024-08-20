@@ -24,6 +24,12 @@ L['CANCEL_GAME_TOOLTIP'] = 'Cancel the current game.'
 L['SHOW_RULES'] = 'Show Rules'
 L['SHOW_RULES_TOOLTIP'] = 'Sends the rules to chat.'
 
+--* Icon Bar
+L['DRAG_FRAME'] = 'Drag Frame'
+L['DRAG_FRAME_TOOLTIP'] = 'Enable/disable dragging of the frame.'
+L['SETTINGS'] = 'Settings'
+L['SETTINGS_TOOLTIP'] = 'Open the settings window.'
+
 --* Dice Games
 L['DICE_GAMES'] = 'Dice Games'
 L['SURVIVOR'] = 'Survivor'
@@ -55,3 +61,23 @@ The person running the game will choose a number.
 Players will then /roll 100 until they roll higher
 than the chosen number. The first player to roll
 higher than the chosen number wins!]]
+
+--* Settings Localization
+L['GENERAL'] = 'General Settings'
+L['ICON'] = 'Show Icon'
+L['ICON_DESC'] = 'Show the minimap icon.'
+L['CONSOLE'] = 'Show Console'
+L['CONSOLE_DESC'] = 'Show low priority console messages.'
+L['TOOLTIPS'] = 'Show Tooltips'
+L['TOOLTIPS_DESC'] = 'Show low priority tooltips.'
+L['SHOW_LOG'] = 'Show Log'
+L['SHOW_LOG_DESC'] = 'Show the log window.'
+-- Game Settings
+L['HIDE_GAME'] = 'Hide Game'
+L['HIDE_GAME_DESC'] = 'Hide the game from the list.'
+L['POT_AMOUNT'] = 'Pot Amount'
+L['POT_AMOUNT_DESC'] = 'The amount of gold in the pot.'
+L['WAIT_FOR_INVITE'] = 'Wait for Invite'
+L['WAIT_FOR_INVITE_DESC'] = 'Time to wait for players to join.'
+L['GAME_LENGTH'] = 'Game Length'
+L['GAME_LENGTH_DESC'] = 'The length of the game.'

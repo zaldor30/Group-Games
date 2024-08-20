@@ -31,10 +31,16 @@ Libs\LibDeflate\LibDeflate.lua
 Locales\Locales.xml
 
 GG_Init.lua
-
-Screens\GG_Base.lua
-Screens\Dice_Games\GG_HighRoller.lua
-
-Shared\GG_Code.lua
-
 GG_Core.lua
+GG_Settings.lua
+
+Code\GG_Code.lua
+Code\GG_Observer.lua
+
+Games\GG_Base.lua
+Games\GG_Logs.lua
+
+Games\Dice\GG_Frames.lua
+Games\Dice\GG_DiceCode.lua
+Games\Dice\GG_DiceRace.lua
+Games\Dice\GG_HighRoller.lua

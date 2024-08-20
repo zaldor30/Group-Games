@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../../../../../../Users/zalro/Documents/GitHub/GroupGames-Old"
 		}
 	],
 	"settings": {
@@ -48,7 +51,10 @@
 			"GameFontDisableSmall",
 			"GameFontNormalSmall",
 			"ChatFontNormal",
-			"Minimap"
+			"Minimap",
+			"DEFAULT",
+			"UISpecialFrames",
+			"SETTINGS"
 		]
 	}
 }
