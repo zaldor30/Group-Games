@@ -10,6 +10,7 @@ GG.version = C_AddOns.GetAddOnMetadata('GroupGames', 'Version')
 GG.debug = false
 GG.isPreRelease = true
 GG.preReleaseType = 'Pre-Alpha'
+GG.versionOut = '(v'..GG.version..(GG.isPreRelease and ' '..GG.preReleaseType or '')..')'
 
 -- Colors
 DEFAULT_CHAT_COLOR = 'FF3EB9D8'

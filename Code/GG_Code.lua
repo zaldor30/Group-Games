@@ -65,6 +65,58 @@ function code:FormatNumberWithCommas(number)
     return formatted
 end
 
+--* Frame Routines
+function code:CreateButtonFrame(frame, label, TooltipTitle, TooltipBody, useRedHighlight)
+    frame:SetBackdrop(BackdropTemplate(BLANK_BACKGROUND))
+    frame:SetBackdropColor(0, 0, 0, 0)
+    frame:SetBackdropBorderColor(1, 1, 1, 1)
+
+    local highLight = frame:CreateTexture(nil, 'OVERLAY')
+    highLight:SetSize(frame:GetWidth()-3, frame:GetHeight()-3)
+    highLight:SetPoint('CENTER', frame, 'CENTER', 0, 0)
+    highLight:SetAtlas(BLUE_OUTLINE_HIGHLIGHT)
+    highLight:SetShown(false)
+
+    local text = frame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    text:SetPoint('CENTER', frame, 'CENTER', 0, 0)
+    text:SetText(label)
+    text:SetTextColor(1, 1, 1, 1)
+    text:SetJustifyH('CENTER')
+
+    frame:SetScript('OnEnable', function()
+        frame:SetBackdropBorderColor(1, 1, 1, 1)
+        text:SetTextColor(1, 1, 1, 1)
+    end)
+    frame:SetScript('OnDisable', function()
+        frame:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
+        text:SetTextColor(0.5, 0.5, 0.5, 1)
+    end)
+    frame:SetScript('OnEnter', function()
+        code:createTooltip(TooltipTitle, TooltipBody)
+        highLight:SetVertexColor(1, 1, 1, 1)
+        if useRedHighlight then highLight:SetVertexColor(1, 0, 0, 1) end
+        highLight:SetShown(true)
+    end)
+    frame:SetScript('OnLeave', function()
+        GameTooltip:Hide()
+        highLight:SetShown(false)
+    end)
+
+    return frame, highLight
+end
+function code:Confirmation(msg, func)
+    StaticPopupDialogs["MY_YES_NO_DIALOG"] = {
+        text = msg,
+        button1 = "Yes",
+        button2 = "No",
+        OnAccept = func,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = false,
+    }
+    StaticPopup_Show("MY_YES_NO_DIALOG")
+end
+
 --* Dropdown Menu
 function ggMenu:ClearMenu(dropdownFrame)
     -- Hide the existing dropdown menu if it exists
@@ -78,7 +130,7 @@ function ggMenu:CreateMenu(parent, tblEntries, defaultText, width)
         code:fOut('CreateMenu: Parent or entries not provided.', 'FF0000')
         return
     end
-    
+
     local menuEntries, menuWidth = tblEntries, width or 200
 
     -- Create a frame for the dropdown menu

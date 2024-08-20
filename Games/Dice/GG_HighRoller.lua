@@ -38,6 +38,10 @@ function hRoller:SetShown(val)
 
     local iContentText = tblBase.instructions.contentText
     iContentText:SetText(L['HIGH_ROLLER_DESC'])
+
+    ns.logs:ClearLogs()
+    ns.logsTitle:SetText(L['HIGH_ROLLER']..' (v'..self.version..')')
+    ns.logs:AddLogEntry(L['HIGH_ROLLER']..' v'..self.version..' - Started.', 'FF00FF00')
 end
 function hRoller:LoadPlayerRolls()
     local yOffset = -20
@@ -65,7 +69,7 @@ function hRoller:CreateGameControls()
         end
     end
 
-    self.tblRound.bet = 10000
+    self.tblRound.bet = ns.gSettings.highRoller.potAmount and 10000
     local betEditBox = CreateFrame('EditBox', 'GG_Dice_Survivor_Bet_EditBox', buttonFrame, 'InputBoxTemplate')
     betEditBox:SetPoint('LEFT', betLabel, 'RIGHT', 10, 0)
     betEditBox:SetSize(buttonFrame:GetWidth() - betLabel:GetWidth() - 30, 20)
@@ -90,5 +94,35 @@ function hRoller:CreateGameControls()
     betEditBox:SetScript('OnEnter', function(self) hRoller.tblRound.oldBet = hRoller.tblRound.bet or nil end)
     betEditBox:SetScript('OnLeave', function(self) updateBet() end)
     self.tblFrame.betEditBox = betEditBox
+
+    --* Start Game Button
+    local frame = CreateFrame('Button', nil, buttonFrame, 'BackdropTemplate')
+    frame:SetSize(100, 25) -- Don't know why, but won't work without this
+    frame:SetPoint('TOPLEFT', betLabel, 'BOTTOMLEFT', 0, -5)
+    frame:SetPoint('TOPRIGHT', betEditBox, 'BOTTOMRIGHT', 0, -25)
+    ns.code:CreateButtonFrame(frame, L['START_GAME'], L['START_GAME'], L['START_GAME_TOOLTIP'])
+    frame:SetScript('OnClick', function()
+    end)
+
+    --* Show Rules Button
+    local rulesFrame = CreateFrame('Button', nil, buttonFrame, 'BackdropTemplate')
+    rulesFrame:SetSize(100, 25)
+    rulesFrame:SetPoint('BOTTOMLEFT', buttonFrame, 'BOTTOMLEFT', 5, 5)
+    ns.code:CreateButtonFrame(rulesFrame, L['SHOW_RULES'], L['SHOW_RULES'], L['SHOW_RULES_TOOLTIP'])
+    rulesFrame:SetScript('OnClick', function()
+        ns.coms:SendChatMessage(L['HIGH_ROLLER'])
+        ns.coms:SendChatMessage(L['HIGH_ROLLER_RULES_1'])
+        ns.coms:SendChatMessage(L['HIGH_ROLLER_RULES_2'])
+        ns.coms:SendChatMessage(L['HIGH_ROLLER_RULES_3'])
+    end)
+
+    --* Cancel Game Button
+    local cancelFrame = CreateFrame('Button', nil, buttonFrame, 'BackdropTemplate')
+    cancelFrame:SetSize(100, 25)
+    cancelFrame:SetPoint('BOTTOMRIGHT', buttonFrame, 'BOTTOMRIGHT', -5, 5)
+    ns.code:CreateButtonFrame(cancelFrame, L['CANCEL_GAME'], L['CANCEL_GAME'], L['CANCEL_GAME_TOOLTIP'], 'USE_RED_HIGHLIGHT')
+    cancelFrame:SetScript('OnClick', function()
+        ns.coms:SendChatMessage(L['CANCEL_GAME'])
+    end)
 end
 hRoller:Init()

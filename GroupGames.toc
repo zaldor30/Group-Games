@@ -35,6 +35,7 @@ GG_Core.lua
 GG_Settings.lua
 
 Code\GG_Code.lua
+Code\GG_Coms.lua
 Code\GG_Observer.lua
 
 Games\GG_Base.lua

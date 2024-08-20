@@ -153,4 +153,4 @@ diceBase:Init()
     ns.diceBase.tblBase.instructions.frame (frame)
     ns.diceBase.tblBase.instructions.contentText (contentText)
     ns.diceBase.tblBase.buttonFrame (frame)
-]]
+--]]

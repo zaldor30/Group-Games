@@ -110,6 +110,7 @@ function lBase:SetShown(val)
 
     self.tblMenu.frame = ns.ggMenu:CreateMenu(self.tblFrame.titleBar, self.menuEntries, (ns.core.activeGame and ns.core.activeGame or 'Select a Game'), 150)
     base.bFrame.frame:SetShown(true)
+    ns.logs:SetShown(true, true)
 end
 function lBase:CreateBaseFrame()
     local f = base.bFrame.frame or CreateFrame('Frame', 'GG_BaseFrame', UIParent, 'BackdropTemplate')
@@ -123,6 +124,7 @@ function lBase:CreateBaseFrame()
     f:RegisterForDrag('LeftButton')
     f:SetScript('OnDragStart', OnDragStart)
     f:SetScript('OnDragStop', OnDragStop)
+    f:SetScript('OnHide', function() ns.logs:SetShown(false) end)
     f:SetShown(true)
     base.bFrame.frame = f
 

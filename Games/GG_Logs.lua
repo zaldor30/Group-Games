@@ -11,7 +11,7 @@ function logs:Init()
 
     self.tblLogs = {}
 end
-function logs:SetShown(val)
+function logs:SetShown(val, start)
     local base = ns.base.bFrame
 
     if self.tblLogs.frame then self.tblLogs.frame:SetShown(val) end
@@ -22,8 +22,13 @@ function logs:SetShown(val)
     elseif self.tblLogs.frame then return end
 
     self.logsActive = true
-    self:CreateLogsFrame()
+    if not self.tblLogs.frame then self:CreateLogsFrame() end
     self:PositionLogScreen()
+    if start then
+        self:AddLogEntry('Group Games '..GG.versionOut..' Started', DEFAULT_CHAT_COLOR)
+        self:AddLogEntry('Logs Started.', 'FF00FF00')
+        logs:SetShown(false)
+    end
 end
 function logs:CreateLogsFrame()
     local base = ns.base.bFrame
@@ -59,16 +64,19 @@ function logs:CreateLogsFrame()
     closeButton:SetScript('OnClick', function() self:SetShown(false) end)
     closeButton:SetShown(true)
 
-    -- Create log window frame
-    local logFrame = self.tblLogs.logFrame or CreateFrame('ScrollFrame', 'GG_LogsLogFrame', f, 'UIPanelScrollFrameTemplate')
-    logFrame:SetPoint('TOPLEFT', titleBar, 'BOTTOMLEFT', 10, 0)
-    logFrame:SetPoint('BOTTOMRIGHT', f, 'BOTTOMRIGHT', -30, 10)
-    logFrame:SetShown(true)
-    self.tblLogs.logFrame = logFrame
+    -- Create log scroll frame
+    local logScrollFrame = self.tblLogs.logFrame or CreateFrame('ScrollFrame', 'GG_LogsLogFrame', f, 'UIPanelScrollFrameTemplate')
+    logScrollFrame:SetPoint('TOPLEFT', titleBar, 'BOTTOMLEFT', 10, 0)
+    logScrollFrame:SetWidth(f:GetWidth() - 40)
+    logScrollFrame:SetShown(true)
+    self.tblLogs.logFrame = logScrollFrame
 
-    local logsContentFrame = self.tblLogs.contentFrame or CreateFrame('Frame', 'GG_BaseLogsContentFrame', logFrame)
-    logsContentFrame:SetSize(logFrame:GetWidth(), logFrame:GetHeight())  -- Adjust height depending on content size
-    logFrame:SetScrollChild(logsContentFrame)
+    local scrollBar = _G[logScrollFrame:GetName().."ScrollBar"]
+    scrollBar:Hide()  -- Hide the scrollbar initially
+
+    local logsContentFrame = self.tblLogs.contentFrame or CreateFrame('Frame', 'GG_BaseLogsContentFrame', logScrollFrame)
+    logsContentFrame:SetSize(logScrollFrame:GetWidth(), 15)  -- Adjust height depending on content size
+    logScrollFrame:SetScrollChild(logsContentFrame)
     logsContentFrame:SetShown(true)
     self.tblLogs.contentFrame = logsContentFrame
 end
@@ -86,26 +94,27 @@ function logs:ClearLogs()
         child:Hide()
         child:SetParent(nil)
     end
-    logsFrame:SetHeight(0)
+    self.tblLogs.logFrame:SetHeight(0)
 end
 function logs:AddLogEntry(entry, color)
     local lineSpacing = 15
-    local logsFrame = self.tblLogs.contentFrame
+    local logsContentFrame = self.tblLogs.contentFrame
     local formattedTime = date("%H:%M:%S", GetServerTime())
     -- Add the new entry to the logEntries table
     local text = color and ns.code:cText(color, entry) or entry
     table.insert(self.logEntries, text)
 
     -- Create a new FontString for the log entry
-    local logEntry = logsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    local logEntry = logsContentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     logEntry:SetText(formattedTime..': '..text)
-    logEntry:SetPoint("TOPLEFT", logsFrame, "TOPLEFT", 10, -lineSpacing * (#self.logEntries - 1))
-    logEntry:SetWidth(logsFrame:GetWidth() - 20)
+    logEntry:SetPoint("TOPLEFT", logsContentFrame, "TOPLEFT", 10, -lineSpacing * (#self.logEntries - 1))
+    logEntry:SetWidth(logsContentFrame:GetWidth() - 20)
     logEntry:SetJustifyH("LEFT")
     logEntry:SetWordWrap(false)
 
     -- Adjust the content frame height to accommodate the new entry
-    logsFrame:SetHeight(lineSpacing * #self.logEntries)
+    local logHeight = lineSpacing * #self.logEntries
+    self.tblLogs.logFrame:SetHeight(logHeight)
     self.tblLogs.logFrame:UpdateScrollChildRect()
 
     -- Scroll to the bottom to show the latest entry
