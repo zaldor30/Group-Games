@@ -49,26 +49,30 @@ local defaultDB = {
         },
         gameSettings = {
             totalRan = 0,
-            survivor = {
+            diceRace = {
                 hide = false,
+                favorite = true,
                 potAmount = 10000,
                 joinWaitTime = 30,
                 gameLength = 15,
             },
             highRoller = {
                 hide = false,
+                favorite = true,
+                potAmount = 10000,
+                joinWaitTime = 30,
+                gameLength = 15,
+            },
+            survivor = {
+                hide = false,
+                favorite = false,
                 potAmount = 10000,
                 joinWaitTime = 30,
                 gameLength = 15,
             },
             targetPractice = {
                 hide = false,
-                potAmount = 10000,
-                joinWaitTime = 30,
-                gameLength = 15,
-            },
-            diceRace = {
-                hide = false,
+                favorite = false,
                 potAmount = 10000,
                 joinWaitTime = 30,
                 gameLength = 15,
@@ -115,9 +119,9 @@ function lCore:SetupDatabase()
 
     ns.g, ns.p = db.global, db.profile
 
-    ns.gSettings = db.global.gameSettings
-    ns.pSettings = db.profile.settings
-    ns.pStats = db.profile.stats
+    ns.gSettings = ns.g.gameSettings
+    ns.pSettings = ns.p.settings
+    ns.pStats = ns.p.stats
 
     if self.clubID then
         db.global[self.clubID] = db.global[self.clubID] or self.guildSettings

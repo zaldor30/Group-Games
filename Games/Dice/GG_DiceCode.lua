@@ -7,13 +7,20 @@ local diceCode = ns.diceCode
 function diceCode:ClearAllRows(tblRound)
     if not tblRound then return end
 
+    local bRow = ns.base.row
+    if bRow then
+        ns.base.changesText:SetText('')
+        bRow:SetParent(nil)
+    end
+    ns.base.row = nil
+
     tblRound.rowsRoll = tblRound.rowsRoll or {}
     for _, row in ipairs(tblRound.rowsRoll) do
         row:Hide()
         row:SetParent(nil)
     end
     tblRound.rowsRoll = table.wipe(tblRound.rowsRoll)
-    ns.diceBase.tblBase.playerRolls:SetHeight(0)
+    ns.tGame.playerRolls:SetHeight(0)
 
     return tblRound
 end
@@ -49,7 +56,7 @@ function diceCode:CreateButtonFrame(label, btnPoint, parent, parentPoint, pos1, 
     return frame, highLight
 end
 function diceCode:createContentRow(tblRound, name, rec, yOffset, isTitle)
-    local parent = ns.diceBase.tblBase.playerRolls
+    local parent = ns.tGame.playerRolls
 
     rec = type(rec) == 'table' and rec or {
         roll = rec,

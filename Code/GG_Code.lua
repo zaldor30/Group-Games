@@ -104,6 +104,37 @@ function code:CreateButtonFrame(frame, label, TooltipTitle, TooltipBody, useRedH
 
     return frame, highLight
 end
+function code:CreateButton(label, btnPoint, parent, parentPoint, pos1, pos2, x, y, useRedHighlight)
+    local frame = CreateFrame('Button', nil, parent, 'BackdropTemplate')
+    frame:SetSize(x, y)
+    frame:SetPoint(btnPoint, parent, parentPoint, pos1, pos2)
+    frame:SetBackdrop(BackdropTemplate(BLANK_BACKGROUND))
+    frame:SetBackdropColor(0, 0, 0, 0)
+    frame:SetBackdropBorderColor(1, 1, 1, 1)
+
+    local highLight = frame:CreateTexture(nil, 'OVERLAY')
+    highLight:SetSize(frame:GetWidth()-3, frame:GetHeight()-3)
+    highLight:SetPoint('CENTER', frame, 'CENTER', 0, 0)
+    highLight:SetAtlas(useRedHighlight and RED_HIGHLIGHT or BLUE_OUTLINE_HIGHLIGHT)
+    highLight:SetShown(false)
+
+    local text = frame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+    text:SetPoint('CENTER', frame, 'CENTER', 0, 0)
+    text:SetText(label)
+    text:SetTextColor(1, 1, 1, 1)
+    text:SetJustifyH('CENTER')
+
+    frame:SetScript('OnEnable', function()
+        frame:SetBackdropBorderColor(1, 1, 1, 1)
+        text:SetTextColor(1, 1, 1, 1)
+    end)
+    frame:SetScript('OnDisable', function()
+        frame:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
+        text:SetTextColor(0.5, 0.5, 0.5, 1)
+    end)
+
+    return frame, highLight
+end
 function code:Confirmation(msg, func)
     StaticPopupDialogs["MY_YES_NO_DIALOG"] = {
         text = msg,
@@ -159,17 +190,75 @@ function ggMenu:CreateMenu(parent, tblEntries, defaultText, width)
                 info.hasArrow = item.hasArrow
                 info.menuList = item.menuList
                 info.func = item.func
-                UIDropDownMenu_AddButton(info)
+                if not item.hide then
+                    UIDropDownMenu_AddButton(info, level)
+                end
             end
         elseif menuList then
             for _, childItem in ipairs(menuList) do
                 info.text = childItem.text
                 info.notCheckable = childItem.notCheckable
                 info.func = childItem.func
-                UIDropDownMenu_AddButton(info, level)
+                if not childItem.hide then
+                    UIDropDownMenu_AddButton(info, level)
+                end
             end
         end
     end)
 
     return dropdownFrame
+end
+function ggMenu:ClearButtons(buttons)
+    for _, button in ipairs(buttons) do
+        button:Hide()           -- Hide the button
+        button:SetParent(nil)   -- Detach the button from its parent
+    end
+    wipe(buttons)               -- Clear the table
+end
+function ggMenu:CreateFavoriteButtons(parent, menuEntries, buttonWidth, buttonHeight, padding)
+    local buttons = {}
+    local index = 1
+
+    buttonWidth = buttonWidth or 100
+    buttonHeight = buttonHeight or 25
+    padding = padding or 5
+
+    local count = 0
+    for _, entry in ipairs(menuEntries) do
+        count = count + 1
+        if count > 6 then break end
+        if entry.menuList then
+            for _, item in ipairs(entry.menuList) do
+                if item.fav and not item.hide then
+                    -- Create the button
+                    local button, highlight = code:CreateButton(item.text, "TOPLEFT", parent, "TOPLEFT", 0, 0, buttonWidth, buttonHeight)
+
+                    -- Calculate position
+                    local row = math.floor((index - 1) / 2)
+                    local col = (index - 1) % 2
+
+                    -- Set position
+                    button:ClearAllPoints()
+                    button:SetPoint("TOPLEFT", parent, "TOPLEFT", col * (buttonWidth + padding), -row * (buttonHeight + padding))
+
+                    -- Set the button's click function
+                    button:SetScript("OnClick", item.func)
+                    button:SetScript("OnEnter", function(self)
+                        highlight:SetShown(true)
+                    end)
+                    button:SetScript("OnLeave", function(self)
+                        highlight:SetShown(false)
+                    end)
+
+                    -- Store the button in the table
+                    table.insert(buttons, button)
+
+                    -- Increment the index for positioning
+                    index = index + 1
+                end
+            end
+        end
+    end
+
+    return buttons
 end

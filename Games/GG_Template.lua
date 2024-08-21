@@ -1,38 +1,38 @@
 local _, ns = ... -- Namespace (myaddon, namespace)
 local L = LibStub("AceLocale-3.0"):GetLocale('GroupGames')
 
-ns.diceBase = {}
-local dBase, diceBase = {}, ns.diceBase
+ns.tGame = {}
+local gBase, tGame = {}, ns.tGame
 
 local function obsCLOSE_SCANNER()
     ns.observer:Unregister('CLOSE_SCREENS', obsCLOSE_SCANNER)
-    --dBase:SetShown(false)
+    --gBase:SetShown(false)
 end
 
-function dBase:Init()
+function gBase:Init()
     self.version = '1.0.0'
 end
-function dBase:SetShown(val)
+function gBase:SetShown(val)
     if not val then
-        diceBase.tblBase.frame:SetShown(false)
+        tGame.tblBase.frame:SetShown(false)
         return
     end
 
     ns.observer:Register('CLOSE_SCREENS', obsCLOSE_SCANNER)
 
-    if diceBase.tblBase.frame then
-        diceBase:ClearData()
-        diceBase.tblBase.frame:SetShown(true)
+    if tGame.tblBase.frame then
+        tGame:ClearData()
+        tGame.tblBase.frame:SetShown(true)
         return
     end
 
-    diceBase:ClearData()
+    tGame:ClearData()
     self:CreateBaseFrame()
     self:CreateLeftPane()
     self:CreateInstructionsPane()
     self:CreateControlPane()
 end
-function dBase:CreateBaseFrame()
+function gBase:CreateBaseFrame()
     local of = ns.gameFrame
 
     local frame = CreateFrame('Frame', 'GG_Dice_HighRoller', of, 'BackdropTemplate')
@@ -43,13 +43,13 @@ function dBase:CreateBaseFrame()
     frame:SetBackdropBorderColor(0, 0, 0, 0)
     frame:SetFrameStrata('DIALOG')
     frame:SetShown(true)
-    diceBase.tblBase.frame = frame
+    tGame.tblBase.frame = frame
 end
-function dBase:CreateLeftPane()
-    local frame = diceBase.tblBase.frame
+function gBase:CreateLeftPane()
+    local frame = tGame.tblBase.frame
 
     --* Player Rolls Frame
-    local playerRolls = CreateFrame('Frame', 'GG_Dice_Base_PlayerRolls', frame, 'BackdropTemplate')
+    local playerRolls = CreateFrame('Frame', 'GG_tGame_PlayerRolls', frame, 'BackdropTemplate')
     playerRolls:SetPoint('TOPLEFT', frame, 'TOPLEFT', 10, 0)
     playerRolls:SetSize(200, frame:GetHeight())
     playerRolls:SetBackdrop(BackdropTemplate(BLANK_BACKGROUND))
@@ -59,24 +59,25 @@ function dBase:CreateLeftPane()
     playerRolls:SetShown(true)
 
     --* Player Rolls ScrollFrame
-    local scrollFrame = CreateFrame("ScrollFrame", "GG_Dice_Base_PlayerRolls_ScrollFrame", playerRolls, "UIPanelScrollFrameTemplate")
-    scrollFrame:SetSize(playerRolls:GetWidth()-20, playerRolls:GetHeight()-20)  -- Set the size of the scroll frame
+    local scrollFrame = CreateFrame("ScrollFrame", "GG_tGame_PlayerRolls_ScrollFrame", playerRolls, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetSize(playerRolls:GetWidth()-30, playerRolls:GetHeight()-20)  -- Set the size of the scroll frame
     scrollFrame:SetPoint("CENTER", playerRolls, "CENTER", 0, 0)  -- Position it in the center of the screen
 
-    local scrollBar = _G[scrollFrame:GetName().."ScrollBar"]
-    scrollBar:Hide()  -- Hide the scrollbar initially
-
-    local contentFrame = CreateFrame("Frame", "GG_Dice_Base_PlayerRolls_ContentFrame", scrollFrame)
+    local contentFrame = CreateFrame("Frame", "GG_tGame_PlayerRolls_ContentFrame", scrollFrame)
     contentFrame:SetSize(scrollFrame:GetWidth(), 0)
     scrollFrame:SetScrollChild(contentFrame)
 
-    diceBase.tblBase.playerRolls = contentFrame
+    local scrollBar = _G[scrollFrame:GetName().."ScrollBar"]
+    scrollBar:Hide()
+
+    tGame.tblBase.playerRolls = contentFrame
+    ns.tGame.playerRolls = contentFrame
 end
-function dBase:CreateInstructionsPane()
-    local frame = diceBase.tblBase.frame
+function gBase:CreateInstructionsPane()
+    local frame = tGame.tblBase.frame
 
     --* instructions Frame
-    local instructions = CreateFrame('Frame', 'GG_Dice_Base_PlayerRolls', frame, 'BackdropTemplate')
+    local instructions = CreateFrame('Frame', 'GG_tGame_PlayerRolls', frame, 'BackdropTemplate')
     instructions:SetPoint('TOPRIGHT', frame, 'TOPRIGHT', -10, 0)
     instructions:SetSize(225, 50)
     instructions:SetBackdrop(BackdropTemplate(BLANK_BACKGROUND))
@@ -84,8 +85,8 @@ function dBase:CreateInstructionsPane()
     instructions:SetBackdropBorderColor(1, 1, 1, 1)
     instructions:SetFrameStrata('DIALOG')
     instructions:SetShown(true)
-    diceBase.tblBase.instructions = diceBase.tblBase.instructions or {}
-    diceBase.tblBase.instructions.frame = instructions
+    tGame.tblBase.instructions = tGame.tblBase.instructions or {}
+    tGame.tblBase.instructions.frame = instructions
 
     local scrollFrame = CreateFrame("ScrollFrame", "MyScrollableTextFrame", instructions, "UIPanelScrollFrameTemplate")
     scrollFrame:SetSize(instructions:GetWidth(), instructions:GetHeight())  -- Set the size of the scroll frame
@@ -106,14 +107,14 @@ function dBase:CreateInstructionsPane()
     local textHeight = text:GetStringHeight()
     contentFrame:SetHeight(textHeight + 10)  -- Add some padding
     scrollFrame:SetScrollChild(contentFrame)
-    diceBase.tblBase.instructions.contentText = text
+    ns.tGame.instructions = text
 end
-function dBase:CreateControlPane()
-    local frame = diceBase.tblBase.frame
-    local instructions = diceBase.tblBase.instructions.frame
+function gBase:CreateControlPane()
+    local frame = tGame.tblBase.frame
+    local instructions = tGame.tblBase.instructions.frame
 
     --* Button Frame
-    local buttonFrame = CreateFrame('Frame', 'GG_Dice_Base_PlayerRolls', frame, 'BackdropTemplate')
+    local buttonFrame = CreateFrame('Frame', 'GG_tGame_PlayerRolls', frame, 'BackdropTemplate')
     buttonFrame:SetPoint('TOPLEFT', instructions, 'BOTTOMLEFT', 0, 0)
     buttonFrame:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', -10, 0)
     buttonFrame:SetBackdrop(BackdropTemplate(BLANK_BACKGROUND))
@@ -121,17 +122,17 @@ function dBase:CreateControlPane()
     buttonFrame:SetBackdropBorderColor(1, 1, 1, 1)
     buttonFrame:SetFrameStrata('DIALOG')
     buttonFrame:SetShown(true)
-    diceBase.tblBase.buttonFrame = buttonFrame
+    tGame.tblBase.buttonFrame = buttonFrame
 end
-dBase:Init()
+gBase:Init()
 
-function diceBase:Init()
+function tGame:Init()
     self.tblBase = {}
 end
-function diceBase:SetShown(val) dBase:SetShown(val) end
-function diceBase:ClearData()
-    if not diceBase.tblBase.instructions then return end
-    local buttonFrame = diceBase.tblBase.buttonFrame
+function tGame:SetShown(val) gBase:SetShown(val) end
+function tGame:ClearData()
+    if not tGame.tblBase.instructions then return end
+    local buttonFrame = tGame.tblBase.buttonFrame
     if buttonFrame then
         for _, child in ipairs({buttonFrame:GetChildren()}) do
             child:Hide()
@@ -139,18 +140,16 @@ function diceBase:ClearData()
         end
     end
 
-    local instructionsText = diceBase.tblBase.instructions.contentText
-    if instructionsText then
-        instructionsText:SetText(' ')
-    end
+    local instructionsText = tGame.tblBase.instructions.contentText
+    if instructionsText then instructionsText:SetText('') end
 end
-diceBase:Init()
+tGame:Init()
 
 --* Globals
 --[[
-    ns.diceBase.tblBase.frame
-    ns.diceBase.tblBase.playerRolls (contentFrame)
-    ns.diceBase.tblBase.instructions.frame (frame)
-    ns.diceBase.tblBase.instructions.contentText (contentText)
-    ns.diceBase.tblBase.buttonFrame (frame)
+    ns.tGame.tblBase.frame
+    ns.tGame.playerRolls (contentFrame)
+    ns.tGame.tblBase.instructions.frame (frame)
+    ns.tGame.instructions (contentText)
+    ns.tGame.tblBase.buttonFrame (frame)
 --]]

@@ -15,20 +15,21 @@ function logs:SetShown(val, start)
     local base = ns.base.bFrame
 
     if self.tblLogs.frame then self.tblLogs.frame:SetShown(val) end
-    if not val then
+    if not val and not start then
         self.logsActive = false
         base.logsButton:SetTextColor(1, 1, 1, 1)
         return
     elseif self.tblLogs.frame then return end
 
-    self.logsActive = true
     if not self.tblLogs.frame then self:CreateLogsFrame() end
     self:PositionLogScreen()
+
     if start then
         self:AddLogEntry('Group Games '..GG.versionOut..' Started', DEFAULT_CHAT_COLOR)
         self:AddLogEntry('Logs Started.', 'FF00FF00')
-        logs:SetShown(false)
     end
+
+    self.tblLogs.frame:SetShown(self.logsActive)
 end
 function logs:CreateLogsFrame()
     local base = ns.base.bFrame

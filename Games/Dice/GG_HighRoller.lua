@@ -4,7 +4,7 @@ local L = LibStub('AceLocale-3.0'):GetLocale('GroupGames') -- Locale
 ns.diceGames = ns.diceGames or {}
 ns.diceGames.highRoller = {}
 local hRoller = {}
-local tblBase = ns.diceBase.tblBase
+local tblBase = ns.tGame.tblBase
 
 function hRoller:Init()
     self.version = '1.0.0'
@@ -28,16 +28,15 @@ function hRoller:SetShown(val)
 
     ns.core.isGameRunning = false
     ns.core.activeGame = L['HIGH_ROLLER']
-    ns.diceBase:SetShown(true)
+    ns.tGame:SetShown(true)
 
     self.tblRound = ns.diceCode:ClearAllRows(self.tblRound, self.tblFrame.prContentFrame)
 
-    ns.diceBase:ClearData()
+    ns.tGame:ClearData()
     self:LoadPlayerRolls()
     self:CreateGameControls()
 
-    local iContentText = tblBase.instructions.contentText
-    iContentText:SetText(L['HIGH_ROLLER_DESC'])
+    ns.tGame.instructions:SetText(L['HIGH_ROLLER_DESC'])
 
     ns.logs:ClearLogs()
     ns.logsTitle:SetText(L['HIGH_ROLLER']..' (v'..self.version..')')
@@ -52,7 +51,7 @@ function hRoller:LoadPlayerRolls()
     self.tblRound = ns.diceCode:createContentRow(self.tblRound, 'Player Name', 'Roll Result', 0, true)
 end
 function hRoller:CreateGameControls()
-    local buttonFrame = ns.diceBase.tblBase.buttonFrame
+    local buttonFrame = ns.tGame.tblBase.buttonFrame
 
     --* Amount Bet
     -- Create the Bet Amount Label

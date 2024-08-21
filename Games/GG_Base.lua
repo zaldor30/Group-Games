@@ -39,61 +39,8 @@ function lBase:Init()
     }
     self.isMoveLocked = true
 
-    self.menuEntries = { --* Expand for menu items
-        {
-            text = L['DICE_GAMES'],
-            isTitle = true,
-            hasArrow = true,
-            notCheckable = true,
-            menuList = {
-                {
-                    text = L['DICE_RACE'],
-                    notCheckable = true,
-                    func = function()
-                        UIDropDownMenu_SetText(self.tblMenu.frame, L['DICE_RACE'])
-                        CloseDropDownMenus()
-
-                        ns.observer:Notify('CLOSE_SCREENS')
-                        ns.code:fOut(L['DICE_RACE']..' is not implemented.')
-                        ns.diceGames.diceRace:SetShown(true)
-                    end,
-                },
-                {
-                    text = L['HIGH_ROLLER'],
-                    notCheckable = true,
-                    func = function()
-                        UIDropDownMenu_SetText(self.tblMenu.frame, L['HIGH_ROLLER'])
-                        CloseDropDownMenus()
-
-                        ns.observer:Notify('CLOSE_SCREENS')
-                        ns.diceGames.highRoller:SetShown(true)
-                    end,
-                },
-                {
-                    text = L['SURVIVOR'],
-                    notCheckable = true,
-                    func = function()
-                        UIDropDownMenu_SetText(self.tblMenu.frame, L['SURVIVOR'])
-                        CloseDropDownMenus()
-
-                        ns.observer:Notify('CLOSE_SCREENS')
-                        ns.code:fOut(L['SURVIVOR']..' is not implemented.')
-                    end,
-                },
-                {
-                    text = L['TARGET_PRACTICE'],
-                    notCheckable = true,
-                    func = function()
-                        UIDropDownMenu_SetText(self.tblMenu.frame, L['TARGET_PRACTICE'])
-                        CloseDropDownMenus()
-
-                        ns.observer:Notify('CLOSE_SCREENS')
-                        ns.code:fOut(L['TARGET_PRACTICE']..' is not implemented.')
-                    end,
-                },
-            },
-        },
-    }
+    self.tblButtons = {}
+    self.menuEntries = {}
 end
 function lBase:SetShown(val)
     if not val then
@@ -106,11 +53,89 @@ function lBase:SetShown(val)
     self.screenPos = ns.pSettings.screenPos or {point = 'CENTER', x = 0, y = 0}
 
     if not base.bFrame.frame then self:CreateBaseFrame()
-    else ns.ggMenu:ClearMenu(self.tblMenu.frame) end
+    else
+        ns.ggMenu:ClearMenu(self.tblMenu.frame)
+        ns.ggMenu:ClearButtons(self.tblButtons)
+    end
 
-    self.tblMenu.frame = ns.ggMenu:CreateMenu(self.tblFrame.titleBar, self.menuEntries, (ns.core.activeGame and ns.core.activeGame or 'Select a Game'), 150)
     base.bFrame.frame:SetShown(true)
-    ns.logs:SetShown(true, true)
+    ns.logs:SetShown((ns.logs.logsActive or false), true)
+
+    self.menuEntries = {
+        {
+            text = L['DICE_GAMES'],
+            isTitle = true,
+            hasArrow = true,
+            notCheckable = true,
+            menuList = {
+                {
+                    text = L['DICE_RACE'],
+                    notCheckable = true,
+                    hide = ns.gSettings.diceRace.hide or false,
+                    fav = ns.gSettings.diceRace.favorite or false,
+                    func = function()
+                        UIDropDownMenu_SetText(self.tblMenu.frame, L['DICE_RACE'])
+                        CloseDropDownMenus()
+
+                        ns.observer:Notify('CLOSE_SCREENS')
+                        ns.code:fOut(L['DICE_RACE']..' is not implemented.')
+                        ns.diceGames.diceRace:SetShown(true)
+                    end,
+                },
+                {
+                    text = L['HIGH_ROLLER'],
+                    notCheckable = true,
+                    hide = ns.gSettings.highRoller.hide or false,
+                    fav = ns.gSettings.highRoller.favorite or false,
+                    func = function()
+                        UIDropDownMenu_SetText(self.tblMenu.frame, L['HIGH_ROLLER'])
+                        CloseDropDownMenus()
+
+                        ns.observer:Notify('CLOSE_SCREENS')
+                        ns.diceGames.highRoller:SetShown(true)
+                    end,
+                },
+                {
+                    hide = ns.gSettings.survivor.hide or false,
+                    text = L['SURVIVOR'],
+                    notCheckable = true,
+                    fav = ns.gSettings.survivor.favorite or false,
+                    func = function()
+                        UIDropDownMenu_SetText(self.tblMenu.frame, L['SURVIVOR'])
+                        CloseDropDownMenus()
+
+                    ns.observer:Notify('CLOSE_SCREENS')
+                    ns.code:fOut(L['SURVIVOR']..' is not implemented.')
+                end,
+                },
+                {
+                    text = L['TARGET_PRACTICE'],
+                    hide = true,
+                    notCheckable = true,
+                    fav = ns.gSettings.targetPractice.favorite or false,
+                    func = function()
+                        UIDropDownMenu_SetText(self.tblMenu.frame, L['TARGET_PRACTICE'])
+                        CloseDropDownMenus()
+
+                        ns.observer:Notify('CLOSE_SCREENS')
+                        ns.code:fOut(L['TARGET_PRACTICE']..' is not implemented.')
+                    end,
+                },
+            },
+        },
+    }
+
+    base:tGame()
+    self.tblMenu.frame = ns.ggMenu:CreateMenu(self.tblFrame.titleBar, self.menuEntries, (ns.core.activeGame and ns.core.activeGame or 'Select a Game'), 150)
+
+    local btnFrame = CreateFrame('Frame', 'GG_FavoriteButtons', ns.tGame.tblBase.buttonFrame, 'BackdropTemplate')
+    btnFrame:SetBackdrop(BackdropTemplate(BLANK_BACKGROUND))
+    btnFrame:SetBackdropColor(1, 1, 1, 0)
+    btnFrame:SetBackdropBorderColor(1, 1, 1, 0)
+    btnFrame:SetPoint('TOPLEFT', ns.tGame.tblBase.buttonFrame, 'TOPLEFT', 10, -10)
+    btnFrame:SetSize(100, 100)
+
+    self.tblButtons = ns.ggMenu:CreateFavoriteButtons(btnFrame, self.menuEntries, 100)    
 end
 function lBase:CreateBaseFrame()
     local f = base.bFrame.frame or CreateFrame('Frame', 'GG_BaseFrame', UIParent, 'BackdropTemplate')
@@ -215,7 +240,6 @@ function lBase:CreateBaseFrame()
         logsButton:SetTextColor(c[1], c[2], c[3], c[4])
 
         ns.logs:SetShown(ns.logs.logsActive)
-        ns.logs:PositionLogScreen()
     end)
     logsButton:SetScript('OnEnter', function()
         local c = ns.logs.logsActive and cActiveHighlight or cDefaultHighlight
@@ -246,8 +270,46 @@ end
 lBase:Init()
 
 function base:Init()
+    self.row = nil
+    self.changesText = nil
     self.bFrame = {} -- Interactive Frame Storage
 end
 function base:IsShown() return self.bFrame.frame and self.bFrame.frame:IsShown() or false end
 function base:SetShown(val) lBase:SetShown(val) end
+function base:tGame()
+    ns.tGame:ClearData()
+    ns.tGame:SetShown(true)
+    ns.tGame.instructions:SetText(L['GG_INSTRUCTIONS'])
+
+    local pRolls = ns.tGame.playerRolls
+    local text = pRolls:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    text:SetPoint("TOPLEFT", pRolls, "TOPLEFT", 10, -7)  -- Position the text within the content frame
+    text:SetSize(400, pRolls:GetWidth() - 20)
+    text:SetJustifyH("LEFT")
+    text:SetJustifyV("TOP")
+
+    base.row = {}
+    local parent = ns.tGame.playerRolls
+    local row = CreateFrame("Frame", nil, parent)
+
+    local changesText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    changesText:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+    changesText:SetWidth(parent:GetWidth()-30)  -- Set width for the first column
+    changesText:SetJustifyH("CENTER")
+    changesText:SetText(ns.Changes)
+    changesText:SetWordWrap(true)
+
+    row:SetSize(parent:GetWidth(), changesText:GetStringHeight() + 10)--changesText:GetStringHeight() + 10)
+    row:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
+    self.row = row
+    self.changesText = changesText
+    parent:SetHeight(changesText:GetStringHeight() + 10)  -- Add some padding
+end
 base:Init()
+
+ns.Changes = [[
+    Support Discord:
+    discord.gg/ZtS6Q2sKRH
+
+    1.0.0 - Initial Release
+]]

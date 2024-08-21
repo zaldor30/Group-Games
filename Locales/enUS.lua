@@ -30,6 +30,9 @@ L['DRAG_FRAME_TOOLTIP'] = 'Enable/disable dragging of the frame.'
 L['SETTINGS'] = 'Settings'
 L['SETTINGS_TOOLTIP'] = 'Open the settings window.'
 
+--* Title Page Instructions
+L['GG_INSTRUCTIONS'] = 'Select a game from the drowpdown menu to start a game.  Change favorite games from settings.'
+
 --* Dice Games
 L['DICE_GAMES'] = 'Dice Games'
 L['SURVIVOR'] = 'Survivor'
@@ -75,6 +78,8 @@ L['SHOW_LOG_DESC'] = 'Show the log window.'
 -- Game Settings
 L['HIDE_GAME'] = 'Hide Game'
 L['HIDE_GAME_DESC'] = 'Hide the game from the list.'
+L['FAVORITE_GAME'] = 'Favorite Game'
+L['FAVORITE_GAME_DESC'] = 'Favorite games show on main screen.'
 L['POT_AMOUNT'] = 'Pot Amount'
 L['POT_AMOUNT_DESC'] = 'The amount of gold in the pot.'
 L['WAIT_FOR_INVITE'] = 'Wait for Invite'

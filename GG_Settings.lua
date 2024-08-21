@@ -60,8 +60,20 @@ ns.addonSettings = {
                             name = L['HIDE_GAME'],
                             desc = L['HIDE_GAME_DESC'],
                             type = 'toggle',
+                            disabled = function() return ns.gSettings.diceRace.favorite or false
+                            end,
                             get = function() return ns.gSettings.diceRace.hide end,
                             set = function(_, value) ns.gSettings.diceRace.hide = value end,
+                            order = 99,
+                        },
+                        Favorite = {
+                            name = L['FAVORITE_GAME'],
+                            desc = L['FAVORITE_GAME_DESC'],
+                            type = 'toggle',
+                            disabled = function() return ns.gSettings.diceRace.hide or false
+                            end,
+                            get = function() return ns.gSettings.diceRace.favorite end,
+                            set = function(_, value) ns.gSettings.diceRace.favorite = value end,
                             order = 1,
                         },
                         potAmount = {
@@ -112,8 +124,20 @@ ns.addonSettings = {
                             name = L['HIDE_GAME'],
                             desc = L['HIDE_GAME_DESC'],
                             type = 'toggle',
+                            disabled = function() return ns.gSettings.highRoller.favorite or false
+                            end,
                             get = function() return ns.gSettings.highRoller.hide end,
                             set = function(_, value) ns.gSettings.highRoller.hide = value end,
+                            order = 99,
+                        },
+                        Favorite = {
+                            name = L['FAVORITE_GAME'],
+                            desc = L['FAVORITE_GAME_DESC'],
+                            type = 'toggle',
+                            disabled = function() return ns.gSettings.highRoller.hide or false
+                            end,
+                            get = function() return ns.gSettings.highRoller.favorite end,
+                            set = function(_, value) ns.gSettings.highRoller.favorite = value end,
                             order = 1,
                         },
                         potAmount = {
@@ -164,8 +188,20 @@ ns.addonSettings = {
                             name = L['HIDE_GAME'],
                             desc = L['HIDE_GAME_DESC'],
                             type = 'toggle',
+                            disabled = function() return ns.gSettings.survivor.favorite or false
+                            end,
                             get = function() return ns.gSettings.survivor.hide end,
                             set = function(_, value) ns.gSettings.survivor.hide = value end,
+                            order = 99,
+                        },
+                        Favorite = {
+                            name = L['FAVORITE_GAME'],
+                            desc = L['FAVORITE_GAME_DESC'],
+                            type = 'toggle',
+                            disabled = function() return ns.gSettings.survivor.hide or false
+                            end,
+                            get = function() return ns.gSettings.survivor.favorite end,
+                            set = function(_, value) ns.gSettings.survivor.favorite = value end,
                             order = 1,
                         },
                         potAmount = {

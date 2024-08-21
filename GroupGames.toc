@@ -40,8 +40,8 @@ Code\GG_Observer.lua
 
 Games\GG_Base.lua
 Games\GG_Logs.lua
+Games\GG_Template.lua
 
-Games\Dice\GG_Frames.lua
 Games\Dice\GG_DiceCode.lua
 Games\Dice\GG_DiceRace.lua
 Games\Dice\GG_HighRoller.lua
