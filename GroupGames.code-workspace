@@ -54,7 +54,8 @@
 			"Minimap",
 			"DEFAULT",
 			"UISpecialFrames",
-			"SETTINGS"
+			"SETTINGS",
+			"HOME"
 		]
 	}
 }

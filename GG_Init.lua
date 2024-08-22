@@ -16,7 +16,8 @@ GG.versionOut = '(v'..GG.version..(GG.isPreRelease and ' '..GG.preReleaseType or
 DEFAULT_CHAT_COLOR = 'FF3EB9D8'
 
 -- Icons
-APP_ICON = ICON_PATH..'GG_Icon.tga'
+APP_ICON = ICON_PATH..'GG_Icon'
+HOME_ICON = ICON_PATH..'GG_Back'
 SETTINGS_ICON = ICON_PATH..'GG_Settings'
 FRAME_LOCKED_ICON = ICON_PATH..'GG_Locked'
 FRAME_UNLOCKED_ICON = ICON_PATH..'GG_Unlocked'

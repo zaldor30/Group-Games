@@ -135,6 +135,7 @@ function tGame:ClearData()
     local buttonFrame = tGame.tblBase.buttonFrame
     if buttonFrame then
         for _, child in ipairs({buttonFrame:GetChildren()}) do
+            if type(child.GetText) == "function" then child:SetText('') end
             child:Hide()
             child:SetParent(nil)
         end

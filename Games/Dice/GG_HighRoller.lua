@@ -6,6 +6,11 @@ ns.diceGames.highRoller = {}
 local hRoller = {}
 local tblBase = ns.tGame.tblBase
 
+local function obsNEW_GAME_OPENING()
+    hRoller.tblFrame.betLabel:SetText('')
+    ns.diceGames.highRoller:SetShown(false)
+end
+
 function hRoller:Init()
     self.version = '1.0.0'
 
@@ -23,8 +28,11 @@ end
 function ns.diceGames.highRoller:SetShown(val) hRoller:SetShown(val) end
 function hRoller:SetShown(val)
     if not val then
+        self.tblRound = ns.diceCode:ClearAllRows(self.tblRound, self.tblFrame.prContentFrame)
         return
     end
+
+    ns.observer:Register('NEW_GAME_OPENING', obsNEW_GAME_OPENING)
 
     ns.core.isGameRunning = false
     ns.core.activeGame = L['HIGH_ROLLER']
@@ -32,7 +40,6 @@ function hRoller:SetShown(val)
 
     self.tblRound = ns.diceCode:ClearAllRows(self.tblRound, self.tblFrame.prContentFrame)
 
-    ns.tGame:ClearData()
     self:LoadPlayerRolls()
     self:CreateGameControls()
 
@@ -59,6 +66,7 @@ function hRoller:CreateGameControls()
     betLabel:SetPoint('TOPLEFT', buttonFrame, 'TOPLEFT', 10, -10)
     betLabel:SetText('Bet Amount:')
     betLabel:SetJustifyH('CENTER')
+    hRoller.tblFrame.betLabel = betLabel
 
     -- Create the Bet Amount EditBox
     local function updateBet()

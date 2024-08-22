@@ -58,6 +58,7 @@ function lBase:SetShown(val)
         ns.ggMenu:ClearButtons(self.tblButtons)
     end
 
+    ns.core.activeGame = nil
     base.bFrame.frame:SetShown(true)
     ns.logs:SetShown((ns.logs.logsActive or false), true)
 
@@ -207,6 +208,20 @@ function lBase:CreateBaseFrame()
     settingsIcon:SetScript('OnEnter', function() ns.code:createTooltip(L['TITLE'], L['TOOLTIP_BODY'], true) end)
     settingsIcon:SetScript('OnLeave', function() GameTooltip:Hide() end)
     settingsIcon:SetShown(true)
+
+    --* Home Icon
+    local homeIcon = CreateFrame('Button', 'GG_BaseSettingsIcon', titleBar, 'BackdropTemplate')
+    homeIcon:SetSize(20, 20)
+    homeIcon:SetPoint('TOPRIGHT', settingsIcon, 'TOPLEFT', -3, 0)
+    homeIcon:SetNormalTexture(HOME_ICON)
+    homeIcon:SetHighlightTexture(BLUE_HIGHLIGHT)
+    homeIcon:SetScript('OnClick', function()
+        ns.observer:Notify('NEW_GAME_OPENING')
+        self:SetShown(true)
+    end)
+    homeIcon:SetScript('OnEnter', function() ns.code:createTooltip(L['TITLE'], L['TOOLTIP_BODY'], true) end)
+    homeIcon:SetScript('OnLeave', function() GameTooltip:Hide() end)
+    homeIcon:SetShown(true)
 
     --* Build Status Bar
     local statusBar = CreateFrame('Frame', 'GG_BaseFrame_TitleBar', f, 'BackdropTemplate')
